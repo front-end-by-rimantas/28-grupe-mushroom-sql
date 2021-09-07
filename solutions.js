@@ -12,19 +12,19 @@ app.init = async () => {
 
     let sql = '';
     let rows = [];
-    let i = 0;
-
-    const upName = str => {
-        return str[0].toUpperCase() + str.slice(1);
-    }
 
     // LOGIC BELOW
+
+    const upName = (str) => {
+        return str[0].toUpperCase() + str.slice(1);
+    }
 
     // 1
     sql = 'SELECT `mushroom`, `price` FROM `mushroom` ORDER BY `price` DESC';
     [rows] = await connection.execute(sql);
 
     console.log('Grybai:');
+    let i = 0;
     for (const { mushroom, price } of rows) {
         console.log(`${++i}) ${upName(mushroom)} - ${price} EUR/kg`);
     }
@@ -39,10 +39,11 @@ app.init = async () => {
 
     console.log('');
     // 3
-    sql = 'SELECT `mushroom` \
+    sql = 'SELECT `mushroom`, `price` \
             FROM `mushroom` \
             WHERE `price` = ( \
-                SELECT MAX(`price`) FROM `mushroom` \
+                SELECT MAX(`price`) \
+                FROM `mushroom` \
             )';
     [rows] = await connection.execute(sql);
 
@@ -50,10 +51,11 @@ app.init = async () => {
 
     console.log('');
     // 4
-    sql = 'SELECT `mushroom` \
+    sql = 'SELECT `mushroom`, `price` \
             FROM `mushroom` \
             WHERE `price` = ( \
-                SELECT MIN(`price`) FROM `mushroom` \
+                SELECT MIN(`price`) \
+                FROM `mushroom` \
             )';
     [rows] = await connection.execute(sql);
 
@@ -61,30 +63,49 @@ app.init = async () => {
 
     console.log('');
     // 5
-    sql = 'SELECT `mushroom`, (1000 / `weight`) as amount \
-            FROM `mushroom` ORDER BY `mushroom` ASC';
+    sql = 'SELECT `mushroom`, `weight` FROM `mushroom`';
     [rows] = await connection.execute(sql);
 
-    console.log('Grybai:');
+    console.log(`Grybai:`);
     i = 0;
     for (const item of rows) {
-        console.log(`${++i}) ${upName(item.mushroom)} - ${(+item.amount).toFixed(1)}`);
+        const amount = 1000 / item.weight;
+        console.log(`${++i}) ${upName(item.mushroom)} - ${amount.toFixed(1)}`);
     }
 
     console.log('');
     // 6
-    sql = 'SELECT `gatherer.`name`, SUM(`basket`.`count`) as amount \
-            FROM `basket` \
-            LEFT JOIN `gatherer` \
-                ON `gatherer`.`id` = `basket`.`gatherer_id` \
-            GROUP BY `basket`.`gatherer_id` \
-            ORDER BY `gatherer.`name` ASC';
+    sql = 'SELECT `gatherer`.`name`, SUM(`basket`.`count`) as "count" \
+            FROM `gatherer` \
+            LEFT JOIN `basket` \
+                ON `gatherer`.`id` = `basket`.`gatherer_id`\
+            GROUP BY `gatherer`.`name` \
+            ORDER BY `gatherer`.`name` ASC';
     [rows] = await connection.execute(sql);
 
     console.log('Grybu kiekis pas grybautoja:');
     i = 0;
-    for (const item of rows) {
-        console.log(`${++i}) ${upName(item.name)} - ${item.amount} grybu`);
+    for (const { name, count } of rows) {
+        console.log(`${++i}) ${name} - ${count} grybu`);
+    }
+
+    console.log('');
+    // 7
+    sql = 'SELECT `gatherer`.`name`, \
+                SUM(`basket`.`count` * (`mushroom`.`weight` / 1000) * `mushroom`.`price`) as payment \
+            FROM`gatherer` \
+            LEFT JOIN`basket` \
+                ON`gatherer`.`id` = `basket`.`gatherer_id` \
+            LEFT JOIN`mushroom` \
+                ON`mushroom`.`id` = `basket`.`mushroom_id` \
+            GROUP BY`gatherer`.`name` \
+            ORDER BY`gatherer`.`name` ASC; ';
+    [rows] = await connection.execute(sql);
+
+    console.log('Grybu krepselio kainos pas grybautoja:');
+    i = 0;
+    for (const { name, payment } of rows) {
+        console.log(`${++i}) ${name} - ${(+payment).toFixed(2)} EUR`);
     }
 }
 
