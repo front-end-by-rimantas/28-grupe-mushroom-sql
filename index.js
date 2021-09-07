@@ -59,6 +59,33 @@ app.init = async () => {
 
     console.log(`Pigiausias grybas yra: ${upName(rows[0].mushroom)}.`);
 
+    console.log('');
+    // 5
+    sql = 'SELECT `mushroom`, (1000 / `weight`) as amount \
+            FROM `mushroom` ORDER BY `mushroom` ASC';
+    [rows] = await connection.execute(sql);
+
+    console.log('Grybai:');
+    i = 0;
+    for (const item of rows) {
+        console.log(`${++i}) ${upName(item.mushroom)} - ${(+item.amount).toFixed(1)}`);
+    }
+
+    console.log('');
+    // 6
+    sql = 'SELECT `name`, SUM(`count`) as amount \
+            FROM `basket` \
+            LEFT JOIN `gatherer` \
+                ON `gatherer`.`id` = `basket`.`gatherer_id` \
+            GROUP BY `basket`.`gatherer_id` \
+            ORDER BY `name`';
+    [rows] = await connection.execute(sql);
+
+    console.log('Grybu kiekis pas grybautoja:');
+    i = 0;
+    for (const item of rows) {
+        console.log(`${++i}) ${upName(item.name)} - ${item.amount} grybu`);
+    }
 }
 
 app.init();
