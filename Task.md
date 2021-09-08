@@ -122,7 +122,7 @@ Grybu krepselio kainos pas grybautoja:
 3) Vardenis - 7 EUR
 ```
 
-**8** _Isspausdinti, kiek nuo geriausiai vertinamu iki blogiausiai vertinamu grybu yra surinkta. Spausdinima turi atlikti funkcija, kuri gauna vieninteli parametra - kalbos pavadinima, pagal kuria reikia sugeneruoti rezultata_
+**8** _Isspausdinti, kiek nuo geriausiai vertinamu iki blogiausiai vertinamu grybu yra surinkta. Spausdinima turi atlikti funkcija (pavadinimu `mushroomsByRating()`), kuri gauna vieninteli parametra - kalbos pavadinima, pagal kuria reikia sugeneruoti rezultata_
 
 lt pvz.:
 
