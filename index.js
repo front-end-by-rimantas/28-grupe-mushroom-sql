@@ -73,18 +73,39 @@ app.init = async () => {
 
     console.log('');
     // 6
-    sql = 'SELECT `gatherer.`name`, SUM(`basket`.`count`) as amount \
+    sql = 'SELECT `gatherer`.`name`, SUM(`basket`.`count`) as amount \
             FROM `basket` \
             LEFT JOIN `gatherer` \
                 ON `gatherer`.`id` = `basket`.`gatherer_id` \
             GROUP BY `basket`.`gatherer_id` \
-            ORDER BY `gatherer.`name` ASC';
+            ORDER BY `gatherer`.`name` ASC';
     [rows] = await connection.execute(sql);
 
     console.log('Grybu kiekis pas grybautoja:');
     i = 0;
     for (const item of rows) {
         console.log(`${++i}) ${upName(item.name)} - ${item.amount} grybu`);
+    }
+
+    console.log('');
+    // 7
+    sql = 'SELECT `gatherer`.`name`, \
+                SUM(`basket`.`count` * `mushroom`.`weight` * `mushroom`.`price` / 1000) as totalPrice \
+            FROM `gatherer` \
+            LEFT JOIN `basket` \
+                ON `gatherer`.`id` = `basket`.`gatherer_id` \
+            LEFT JOIN `mushroom` \
+                ON `mushroom`.`id` = `basket`.`mushroom_id` \
+            GROUP BY `gatherer`.`id` \
+            ORDER BY totalPrice DESC';
+    [rows] = await connection.execute(sql);
+
+    console.log(rows);
+
+    console.log('Grybu krepselio kainos pas grybautoja:');
+    i = 0;
+    for (const item of rows) {
+        console.log(`${++i}) ${upName(item.name)} - ${(+item.totalPrice).toFixed(2)} EUR`);
     }
 }
 
