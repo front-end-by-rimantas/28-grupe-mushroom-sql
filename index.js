@@ -152,6 +152,25 @@ app.init = async () => {
     await mushroomsByRating('en');
     console.log('');
     await mushroomsByRating('lt');
+
+    console.log('');
+    // 9
+    sql = 'SELECT `mushroom` FROM `mushroom` WHERE `rating` >= 4 ORDER BY `rating` ASC';
+    [rows] = await connection.execute(sql);
+
+    const mushroom = rows.map(obj => obj.mushroom);
+    console.log(`Grybai: ${mushroom.join(', ')}.`);
+
+    console.log('');
+    // 10
+    sql = 'SELECT `mushroom` \
+            FROM `mushroom` \
+            WHERE `rating` IN (1, 3, 5) \
+            ORDER BY `rating` ASC';
+    [rows] = await connection.execute(sql);
+
+    const mushroom135 = rows.map(obj => obj.mushroom);
+    console.log(`Grybai: ${mushroom135.join(', ')}.`);
 }
 
 app.init();
