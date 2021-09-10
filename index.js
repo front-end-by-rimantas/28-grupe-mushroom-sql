@@ -100,13 +100,58 @@ app.init = async () => {
             ORDER BY totalPrice DESC';
     [rows] = await connection.execute(sql);
 
-    console.log(rows);
-
     console.log('Grybu krepselio kainos pas grybautoja:');
     i = 0;
     for (const item of rows) {
         console.log(`${++i}) ${upName(item.name)} - ${(+item.totalPrice).toFixed(2)} EUR`);
     }
+
+    console.log('');
+    // 8
+    async function mushroomsByRating(lang) {
+        const languages = ['en', 'lt'];
+        lang = languages.includes(lang) ? lang : languages[0];
+
+        const texts = {
+            title: {
+                en: 'Mushrooms count by rating',
+                lt: 'Grybu kiekis pagal ivertinima',
+            },
+            stars: {
+                en: 'stars',
+                lt: 'zvaigzdutes',
+            },
+            mushrooms: {
+                en: 'mushrooms',
+                lt: 'grybai',
+            },
+        }
+
+        const sql = 'SELECT `ratings`.`id`, \
+                            `ratings`.`name_' + lang + '` as translation, \
+                            SUM(`basket`.`count`) as amount \
+                    FROM `ratings` \
+                    LEFT JOIN `mushroom` \
+                        ON `ratings`.`id` = `mushroom`.`rating`\
+                    LEFT JOIN `basket` \
+                        ON `mushroom`.`id` = `basket`.`mushroom_id`\
+                    GROUP BY `ratings`.`id` \
+                    ORDER BY `ratings`.`id` DESC';
+        const [rows] = await connection.execute(sql);
+
+        console.log(`${texts.title[lang]}:`);
+        for (const item of rows) {
+            const stars = texts.stars[lang];
+            const tr = item.translation;
+            const amount = item.amount ? item.amount : 0;
+            const mushroom = texts.mushrooms[lang];
+            console.log(`${item.id} ${stars} (${tr}) - ${amount} ${mushroom}`);
+        }
+    }
+
+    await mushroomsByRating('en');
+    console.log('');
+    await mushroomsByRating('lt');
 }
 
 app.init();
