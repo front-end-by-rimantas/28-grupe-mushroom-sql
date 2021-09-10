@@ -158,7 +158,7 @@ app.init = async () => {
     sql = 'SELECT `mushroom` FROM `mushroom` WHERE `rating` >= 4 ORDER BY `rating` ASC';
     [rows] = await connection.execute(sql);
 
-    const mushroom = rows.map(obj => obj.mushroom);
+    const mushroom = rows.map(obj => upName(obj.mushroom));
     console.log(`Grybai: ${mushroom.join(', ')}.`);
 
     console.log('');
@@ -169,7 +169,7 @@ app.init = async () => {
             ORDER BY `rating` ASC';
     [rows] = await connection.execute(sql);
 
-    const mushroom135 = rows.map(obj => obj.mushroom);
+    const mushroom135 = rows.map(obj => upName(obj.mushroom));
     console.log(`Grybai: ${mushroom135.join(', ')}.`);
 }
 
